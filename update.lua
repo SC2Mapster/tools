@@ -46,13 +46,33 @@ local EXCLUDE_STORM = {
 
 local function helpExit(err)
 	if err then print("Error: " .. tostring(err)) end
+	print(([[
+CASC Update Script
+version %d - https://github.com/SC2Mapster/tools
+by folk, Talv, licensed MIT
+
+  --help      Outputs this text.
+  --sc2       Extracts SC2 data.
+  --storm     Extracts Heroes of the Storm data.
+  --dry       Dry run. Prints commands instead of executing them.
+
+$FOLDER_SC2 and $FOLDER_STORM should point to your local installs of game data.
+
+This tool is made to facilitate extraction of code and XML data from Blizzard
+games. For the moment it supports SC2 and Storm, but since it uses stormex,
+which in turn uses CascLib, it should be able to handle any game that uses
+CASC storage.
+
+Uses sharkdp/fd and Talv/stormex in addition to git and curl.
+
+To see the lists of files extracted from each game, please read the script.]]):format(VERSION))
 	os.exit()
 end
 
 local _ = function(s) if type(s) ~= "nil" then return tostring(s) end end
 
-local function noop(cmd)
-	return function(...) print("sh$ " .. cmd .. " " .. table.concat({...}, " ")); return "DRYRUN" end
+local function noop(c)
+	return function(...) print("sh$ " .. c .. " " .. table.concat({...}, " ")); return "DRYRUN" end
 end
 
 -------------------------------------------------------------------------------
@@ -61,9 +81,8 @@ end
 
 local sh = require("sh")
 if type(sh.fork) ~= "string" or sh.fork ~= "folknor" or sh.version < 4 then
-	helpExit("stlrel requires folknors fork of luash, with a version higher than 3.")
+	helpExit("Requires folknors fork of luash, with a version higher than 3.")
 end
-local cmd = DRY_RUN and noop or sh.command
 
 local which = sh.command("which")
 for _, req in next, {"curl", "git", "fd", "stormex"} do
@@ -99,6 +118,7 @@ for i = 1, select("#", ...) do
 	if arg:find("help") then helpExit()
 	elseif arg:find("sc2") then _sc2 = true
 	elseif arg:find("storm") then _storm = true
+	elseif arg:find("dry") then DRY_RUN = true
 	end
 end
 if not _sc2 and not _storm then
@@ -111,6 +131,7 @@ if _sc2   and ( type(FOLDER_SC2) ~= "string" or #FOLDER_SC2 == 0 )     then help
 -- IMPL
 --
 
+local cmd = DRY_RUN and noop or sh.command
 local sex = cmd("stormex")
 local fd = cmd("fd")
 local git = cmd("git")
