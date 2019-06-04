@@ -4,7 +4,7 @@
 -- CONFIG
 --
 
-local VERSION = 1
+local VERSION = 2
 local FOLDER_SC2 = os.getenv("FOLDER_SC2")
 local FOLDER_STORM = os.getenv("FOLDER_STORM")
 local DRY_RUN = false
@@ -24,6 +24,7 @@ local EXCLUDE_SC2 = {
 	"/editordata/texturereduction",
 	"(dede|eses|esmx|frfr|itit|kokr|plpl|ptbr|ruru|zhcn|zhtw)\\.sc2data",
 	"(PreloadAssetDB|TextureReductionValues).txt$",
+	"nova\\d+.sc2map"
 }
 
 local PRUNE_EXCLUDE_STORM = {}
@@ -142,7 +143,7 @@ local function run(src, incl, excl, prune, pruneExcl)
 	print("Updating " .. src .. " ...")
 
 	local isgit = git("-C . rev-parse 2>/dev/null")
-	if tonumber(isgit.__exitcode) == 0 then
+	if tonumber(isgit.__exitcode) == 0 or DRY_RUN then
 		print("Current folder is a git repo, pruning old extracted files ...")
 		for _, p in next, prune do
 			local pruneArgs = {
@@ -151,7 +152,7 @@ local function run(src, incl, excl, prune, pruneExcl)
 			for _, e in next, pruneExcl do
 				table.insert(pruneArgs, "-E '" .. e .. "'")
 			end
-			table.insert(pruneArgs, "-x git rm -r {}")
+			table.insert(pruneArgs, "-x rm -r {}")
 			fd(table.unpack(pruneArgs))
 		end
 	end
