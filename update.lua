@@ -4,7 +4,7 @@
 -- CONFIG
 --
 
-local VERSION = 2
+local VERSION = 3
 local FOLDER_SC2 = os.getenv("FOLDER_SC2")
 local FOLDER_STORM = os.getenv("FOLDER_STORM")
 local DRY_RUN = false
@@ -17,11 +17,11 @@ local PRUNE_SC2 = {
 }
 local INCLUDE_SC2 = {
 	"\\.(fx|xml|txt|json|galaxy|SC2Style|SC2Hotkeys|SC2Lib|TriggerLib|SC2Interface|SC2Locale|SC2Components|SC2Layout|SC2Cutscene|SC2Scene)$",
-	"\\/(DocumentInfo|Objects|Regions|Triggers)$"
+	"\\\\(DocumentInfo|Objects|Regions|Triggers)$"
 }
 local EXCLUDE_SC2 = {
 	"^(?!campaigns|mods)",
-	"/editordata/texturereduction",
+	"\\\\editordata\\\\texturereduction",
 	"(dede|eses|esmx|frfr|itit|kokr|plpl|ptbr|ruru|zhcn|zhtw)\\.sc2data",
 	"(PreloadAssetDB|TextureReductionValues).txt$",
 	"nova\\d+.sc2map"
@@ -33,10 +33,10 @@ local PRUNE_STORM = {
 }
 local INCLUDE_STORM = {
 	"\\.(aitree|fx|xml|txt|json|galaxy|TriggerLib|StormComponents|StormCutscene|StormHotkeys|StormInterface|StormLayout|StormLib|StormLocale|StormStyle)$",
-	"\\/(DocumentInfo|Objects|Regions|Triggers)$"
+	"\\\\(DocumentInfo|Objects|Regions|Triggers)$"
 }
 local EXCLUDE_STORM = {
-	"/editordata/texturereduction",
+	"\\\\editordata\\\\texturereduction",
 	"(dede|eses|esmx|frfr|itit|kokr|plpl|ptbr|ruru|zhcn|zhtw)\\.StormData",
 	"(PreloadAssetDB|TextureReductionValues)\\.txt$",
 }
@@ -158,15 +158,14 @@ local function run(src, incl, excl, prune, pruneExcl)
 	end
 
 	local extractArgs = {
-		"'" .. src .. "'",
-		"--ignore-case",
+		"-v -S '" .. src .. "'",
 		"-x",
 	}
 	for _, e in next, incl do
-		table.insert(extractArgs, "--include '" .. e .. "'")
+		table.insert(extractArgs, "-I '" .. e .. "'")
 	end
 	for _, e in next, excl do
-		table.insert(extractArgs, "--exclude '" .. e .. "'")
+		table.insert(extractArgs, "-E '" .. e .. "'")
 	end
 	print("Extracting files ...")
 	local output = _(sex(table.unpack(extractArgs)))
